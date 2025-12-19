@@ -1,0 +1,61 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: TTS Service",
+      "type": "python",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "src.main:app",
+        "--reload",
+        "--port",
+        "8001",
+        "--host",
+        "0.0.0.0"
+      ],
+      "cwd": "${workspaceFolder}/services/tts-service",
+      "env": {
+        "AWS_ENDPOINT_URL": "http://localhost:4566",
+        "S3_BUCKET_NAME": "tts-service-storage-dev",
+        "KAFKA_BOOTSTRAP_SERVERS": "localhost:9092",
+        "LOG_LEVEL": "DEBUG"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: API Gateway",
+      "type": "python",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "src.main:app",
+        "--reload",
+        "--port",
+        "8000",
+        "--host",
+        "0.0.0.0"
+      ],
+      "cwd": "${workspaceFolder}/services/api-gateway",
+      "env": {
+        "TTS_SERVICE_URL": "http://localhost:8001",
+        "STT_SERVICE_URL": "http://localhost:8002",
+        "CHAT_SERVICE_URL": "http://localhost:8003",
+        "DOCUMENT_SERVICE_URL": "http://localhost:8004",
+        "QUIZ_SERVICE_URL": "http://localhost:8005",
+        "LOG_LEVEL": "DEBUG"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ]
+}

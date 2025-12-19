@@ -25,7 +25,7 @@ dist/
 build/
 
 # IDEs
-.vscode/
+# .vscode/  # Commented out - we want to commit VS Code settings
 .idea/
 *.swp
 *.swo

@@ -1,0 +1,62 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start All Services",
+      "type": "shell",
+      "command": "docker-compose up -d",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Stop All Services",
+      "type": "shell",
+      "command": "docker-compose down",
+      "problemMatcher": []
+    },
+    {
+      "label": "View All Logs",
+      "type": "shell",
+      "command": "docker-compose logs -f",
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "label": "Health Check",
+      "type": "shell",
+      "command": ".\\scripts\\health-check.ps1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup Local Environment",
+      "type": "shell",
+      "command": ".\\scripts\\setup-local.ps1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Rebuild TTS Service",
+      "type": "shell",
+      "command": "docker-compose up -d --build tts-service",
+      "problemMatcher": []
+    },
+    {
+      "label": "Rebuild All Services",
+      "type": "shell",
+      "command": "docker-compose up -d --build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean Docker Volumes",
+      "type": "shell",
+      "command": "docker-compose down -v",
+      "problemMatcher": []
+    }
+  ]
+}
