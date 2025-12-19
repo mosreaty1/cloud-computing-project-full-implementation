@@ -103,7 +103,7 @@ module "ec2" {
   vpc_id                    = module.vpc.vpc_id
   private_subnet_ids        = module.vpc.private_subnet_ids
   kafka_subnet_ids          = module.vpc.kafka_subnet_ids
-  alb_security_group_id     = module.elb.alb_security_group_id != "" ? module.elb.alb_security_group_id : module.vpc.vpc_default_security_group_id
+  alb_security_group_id     = module.elb.alb_security_group_id
   iam_instance_profile_name = module.iam.ec2_instance_profile_name
   ami_id                    = data.aws_ami.amazon_linux_2023.id
   target_group_arns         = module.elb.api_gateway_target_group_arn != "" ? [module.elb.api_gateway_target_group_arn] : []
