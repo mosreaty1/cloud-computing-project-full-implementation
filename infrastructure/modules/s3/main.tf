@@ -35,6 +35,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "tts" {
     id     = "delete-old-audio"
     status = "Enabled"
 
+    filter {
+      prefix = ""
+    }
+
     expiration {
       days = 7
     }
@@ -95,6 +99,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "stt" {
   rule {
     id     = "delete-old-audio"
     status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
 
     expiration {
       days = 7
