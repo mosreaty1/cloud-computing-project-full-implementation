@@ -1,0 +1,10 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+aws_region   = "us-east-1"
+project_name = "learning-platform"
+environment  = "dev"
+vpc_cidr     = "10.0.0.0/16"
+
+# Database credentials (use AWS Secrets Manager in production)
+db_username = "dbadmin"
+db_password = "CHANGE_ME_SECURE_PASSWORD"

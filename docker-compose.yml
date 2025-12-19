@@ -1,0 +1,249 @@
+version: '3.8'
+
+services:
+  # Zookeeper for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-logs:/var/lib/zookeeper/log
+    networks:
+      - learning-platform
+
+  # Kafka Broker
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - learning-platform
+
+  # PostgreSQL for services
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: dbadmin
+      POSTGRES_PASSWORD: dbpassword
+      POSTGRES_MULTIPLE_DATABASES: stt_service_db,chat_service_db,document_service_db,quiz_service_db,user_management_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+    networks:
+      - learning-platform
+
+  # Redis (optional cache)
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - learning-platform
+
+  # LocalStack (for local AWS services)
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    environment:
+      SERVICES: s3,secretsmanager
+      EDGE_PORT: 4566
+      HOSTNAME: localstack
+      HOSTNAME_EXTERNAL: localstack
+      DATA_DIR: /tmp/localstack/data
+    volumes:
+      - localstack-data:/tmp/localstack
+      - ./scripts/localstack-init.sh:/etc/localstack/init/ready.d/init.sh
+    networks:
+      - learning-platform
+
+  # TTS Service
+  tts-service:
+    build:
+      context: ./services/tts-service
+      dockerfile: Dockerfile
+    container_name: tts-service
+    ports:
+      - "8001:8001"
+    environment:
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_ENDPOINT_URL: http://localstack:4566
+      S3_BUCKET_NAME: tts-service-storage-dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      LOG_LEVEL: INFO
+    depends_on:
+      - kafka
+      - localstack
+    networks:
+      - learning-platform
+
+  # STT Service
+  stt-service:
+    build:
+      context: ./services/stt-service
+      dockerfile: Dockerfile
+    container_name: stt-service
+    ports:
+      - "8002:8002"
+    environment:
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_ENDPOINT_URL: http://localstack:4566
+      S3_BUCKET_NAME: stt-service-storage-dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      DATABASE_URL: postgresql://dbadmin:dbpassword@postgres:5432/stt_service_db
+      LOG_LEVEL: INFO
+    depends_on:
+      - kafka
+      - postgres
+      - localstack
+    networks:
+      - learning-platform
+
+  # Chat Service
+  chat-service:
+    build:
+      context: ./services/chat-service
+      dockerfile: Dockerfile
+    container_name: chat-service
+    ports:
+      - "8003:8003"
+    environment:
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_ENDPOINT_URL: http://localstack:4566
+      S3_BUCKET_NAME: chat-service-storage-dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      DATABASE_URL: postgresql://dbadmin:dbpassword@postgres:5432/chat_service_db
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LOG_LEVEL: INFO
+    depends_on:
+      - kafka
+      - postgres
+      - localstack
+    networks:
+      - learning-platform
+
+  # Document Reader Service
+  document-reader:
+    build:
+      context: ./services/document-reader
+      dockerfile: Dockerfile
+    container_name: document-reader
+    ports:
+      - "8004:8004"
+    environment:
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_ENDPOINT_URL: http://localstack:4566
+      S3_BUCKET_NAME: document-reader-storage-dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      DATABASE_URL: postgresql://dbadmin:dbpassword@postgres:5432/document_service_db
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LOG_LEVEL: INFO
+    depends_on:
+      - kafka
+      - postgres
+      - localstack
+    networks:
+      - learning-platform
+
+  # Quiz Service
+  quiz-service:
+    build:
+      context: ./services/quiz-service
+      dockerfile: Dockerfile
+    container_name: quiz-service
+    ports:
+      - "8005:8005"
+    environment:
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_ENDPOINT_URL: http://localstack:4566
+      S3_BUCKET_NAME: quiz-service-storage-dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      DATABASE_URL: postgresql://dbadmin:dbpassword@postgres:5432/quiz_service_db
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LOG_LEVEL: INFO
+    depends_on:
+      - kafka
+      - postgres
+      - localstack
+    networks:
+      - learning-platform
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      TTS_SERVICE_URL: http://tts-service:8001
+      STT_SERVICE_URL: http://stt-service:8002
+      CHAT_SERVICE_URL: http://chat-service:8003
+      DOCUMENT_SERVICE_URL: http://document-reader:8004
+      QUIZ_SERVICE_URL: http://quiz-service:8005
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+      LOG_LEVEL: INFO
+    depends_on:
+      - tts-service
+      - stt-service
+      - chat-service
+      - document-reader
+      - quiz-service
+    networks:
+      - learning-platform
+
+networks:
+  learning-platform:
+    driver: bridge
+
+volumes:
+  zookeeper-data:
+  zookeeper-logs:
+  kafka-data:
+  postgres-data:
+  redis-data:
+  localstack-data:

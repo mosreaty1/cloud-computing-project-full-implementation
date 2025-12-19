@@ -1,0 +1,67 @@
+# Environment variables
+.env
+*.env
+!.env.example
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+*.tfvars
+!*.tfvars.example
+.terraform/
+.terraform.lock.hcl
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker
+*.log
+.dockerignore
+
+# AWS
+*.pem
+*.key
+
+# Kubernetes
+*.kubeconfig
+*-secret.yaml
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Node modules (if any)
+node_modules/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Local data
+data/
+*.sqlite
+*.db
