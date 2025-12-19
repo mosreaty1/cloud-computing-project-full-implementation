@@ -187,4 +187,5 @@ This project is for educational purposes.
 
 ## 📞 Support
 
-For issues and questions, refer to the [Troubleshooting Guide](docs/guides/TROUBLESHOOTING.md). hi
+For issues and questions, refer to the [Troubleshooting Guide](docs/guides/TROUBLESHOOTING.md). hi very goood
+
