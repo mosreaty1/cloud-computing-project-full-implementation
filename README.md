@@ -48,7 +48,16 @@ This platform consists of:
 
 ## 🔧 Prerequisites
 
-### Required Software
+### For Windows Users 🪟
+**See [Windows Setup Guide](docs/guides/WINDOWS-SETUP-GUIDE.md) for detailed Windows instructions!**
+
+Quick install for Windows:
+- **Docker Desktop**: https://www.docker.com/products/docker-desktop/
+- **AWS CLI**: https://awscli.amazonaws.com/AWSCLIV2.msi
+- **Git**: https://git-scm.com/download/win
+- **Terraform**: `choco install terraform` (or manual download)
+
+### For Linux/Mac Users
 - AWS CLI v2+
 - Terraform v1.5+
 - Docker v20+
@@ -67,7 +76,30 @@ This platform consists of:
 
 ## 🚀 Quick Start
 
-### 1. Clone and Setup
+### For Windows Users 🪟
+
+```powershell
+# 1. Clone repository
+git clone <repository-url>
+cd cloud-computing-project-full-implementation
+
+# 2. Run setup script
+.\scripts\setup-local.ps1
+
+# 3. Configure .env file
+notepad .env
+# Add your OPENAI_API_KEY
+
+# 4. Start services
+docker-compose up -d
+
+# 5. Check health
+.\scripts\health-check.ps1
+```
+
+**See [Quick Start for Windows](docs/guides/QUICK-START-WINDOWS.md) for complete guide!**
+
+### For Linux/Mac Users
 
 ```bash
 git clone <repository-url>
@@ -119,12 +151,16 @@ terraform apply
 
 ## 📚 Documentation Links
 
+### 🪟 Windows Users - Start Here!
+- **[Windows Setup Guide](docs/guides/WINDOWS-SETUP-GUIDE.md)** ⭐ Complete Windows guide
+- **[Quick Start for Windows](docs/guides/QUICK-START-WINDOWS.md)** ⭐ Get running in 10 minutes
+
+### General Documentation
 - [AWS Infrastructure Setup Guide](docs/guides/AWS-SETUP-GUIDE.md)
-- [Microservices Architecture](docs/architecture/MICROSERVICES.md)
 - [Kafka Event Patterns](docs/architecture/KAFKA-EVENTS.md)
-- [API Documentation](docs/api/API-REFERENCE.md)
 - [Deployment Guide](docs/guides/DEPLOYMENT-GUIDE.md)
-- [Troubleshooting](docs/guides/TROUBLESHOOTING.md)
+- [Project Overview](docs/PROJECT-OVERVIEW.md)
+- [Implementation Summary](IMPLEMENTATION-SUMMARY.md)
 
 ## 🔐 Security
 
