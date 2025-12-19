@@ -86,11 +86,12 @@ module "iam" {
 module "elb" {
   source = "../../modules/elb"
 
-  project_name       = var.project_name
-  environment        = var.environment
-  vpc_id             = module.vpc.vpc_id
-  public_subnet_ids  = module.vpc.public_subnet_ids
-  kafka_subnet_ids   = module.vpc.kafka_subnet_ids
+  project_name          = var.project_name
+  environment           = var.environment
+  vpc_id                = module.vpc.vpc_id
+  public_subnet_ids     = module.vpc.public_subnet_ids
+  kafka_subnet_ids      = module.vpc.kafka_subnet_ids
+  enable_load_balancers = false  # Set to true after getting AWS support approval
 }
 
 # EC2 Module
@@ -102,10 +103,10 @@ module "ec2" {
   vpc_id                    = module.vpc.vpc_id
   private_subnet_ids        = module.vpc.private_subnet_ids
   kafka_subnet_ids          = module.vpc.kafka_subnet_ids
-  alb_security_group_id     = module.elb.alb_security_group_id
+  alb_security_group_id     = module.elb.alb_security_group_id != "" ? module.elb.alb_security_group_id : module.vpc.vpc_default_security_group_id
   iam_instance_profile_name = module.iam.ec2_instance_profile_name
   ami_id                    = data.aws_ami.amazon_linux_2023.id
-  target_group_arns         = [module.elb.api_gateway_target_group_arn]
+  target_group_arns         = module.elb.api_gateway_target_group_arn != "" ? [module.elb.api_gateway_target_group_arn] : []
   aws_region                = var.aws_region
 
   desired_capacity      = 3

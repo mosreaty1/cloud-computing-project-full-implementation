@@ -2,6 +2,7 @@
 
 # Security Group for ALB
 resource "aws_security_group" "alb" {
+  count       = var.enable_load_balancers ? 1 : 0
   name        = "${var.project_name}-alb-sg-${var.environment}"
   description = "Security group for Application Load Balancer"
   vpc_id      = var.vpc_id
@@ -38,10 +39,11 @@ resource "aws_security_group" "alb" {
 
 # Application Load Balancer
 resource "aws_lb" "main" {
+  count              = var.enable_load_balancers ? 1 : 0
   name               = "${var.project_name}-alb-${var.environment}"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
+  security_groups    = [aws_security_group.alb[0].id]
   subnets            = var.public_subnet_ids
 
   enable_deletion_protection = var.environment == "prod"
@@ -56,6 +58,7 @@ resource "aws_lb" "main" {
 
 # Target Group for API Gateway
 resource "aws_lb_target_group" "api_gateway" {
+  count    = var.enable_load_balancers ? 1 : 0
   name     = "${var.project_name}-api-gw-tg-${var.environment}"
   port     = 8000
   protocol = "HTTP"
@@ -83,7 +86,8 @@ resource "aws_lb_target_group" "api_gateway" {
 
 # HTTP Listener (redirect to HTTPS in production)
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.main.arn
+  count             = var.enable_load_balancers ? 1 : 0
+  load_balancer_arn = aws_lb.main[0].arn
   port              = "80"
   protocol          = "HTTP"
 
@@ -99,7 +103,7 @@ resource "aws_lb_listener" "http" {
       }
     }
 
-    target_group_arn = var.environment != "prod" ? aws_lb_target_group.api_gateway.arn : null
+    target_group_arn = var.environment != "prod" ? aws_lb_target_group.api_gateway[0].arn : null
   }
 }
 
@@ -120,6 +124,7 @@ resource "aws_lb_listener" "http" {
 
 # Network Load Balancer for Kafka (internal)
 resource "aws_lb" "kafka" {
+  count              = var.enable_load_balancers ? 1 : 0
   name               = "${var.project_name}-kafka-nlb-${var.environment}"
   internal           = true
   load_balancer_type = "network"
@@ -136,6 +141,7 @@ resource "aws_lb" "kafka" {
 
 # Target Group for Kafka
 resource "aws_lb_target_group" "kafka" {
+  count    = var.enable_load_balancers ? 1 : 0
   name     = "${var.project_name}-kafka-tg-${var.environment}"
   port     = 9092
   protocol = "TCP"
@@ -160,12 +166,13 @@ resource "aws_lb_target_group" "kafka" {
 
 # NLB Listener for Kafka
 resource "aws_lb_listener" "kafka" {
-  load_balancer_arn = aws_lb.kafka.arn
+  count             = var.enable_load_balancers ? 1 : 0
+  load_balancer_arn = aws_lb.kafka[0].arn
   port              = "9092"
   protocol          = "TCP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.kafka.id
+    target_group_arn = aws_lb_target_group.kafka[0].id
   }
 }

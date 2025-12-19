@@ -22,3 +22,9 @@ variable "certificate_arn" {
   type    = string
   default = ""
 }
+
+variable "enable_load_balancers" {
+  description = "Enable load balancers (requires AWS support approval for some accounts)"
+  type        = bool
+  default     = false
+}
