@@ -1,0 +1,149 @@
+# REST Client tests for Cloud Learning Platform
+# Install "REST Client" extension to use this file
+# Click "Send Request" above each request
+
+@baseUrl = http://localhost:8000
+@ttsUrl = http://localhost:8001
+@sttUrl = http://localhost:8002
+@chatUrl = http://localhost:8003
+@documentUrl = http://localhost:8004
+@quizUrl = http://localhost:8005
+
+### Health Check - API Gateway
+GET {{baseUrl}}/health
+
+### Health Check - TTS Service
+GET {{ttsUrl}}/health
+
+### Health Check - All Services
+GET {{baseUrl}}/services/health
+
+###
+### TTS Service Tests
+###
+
+### Synthesize Speech - Simple
+POST {{baseUrl}}/api/tts/synthesize
+Content-Type: application/json
+
+{
+  "text": "Hello from VS Code",
+  "language": "en",
+  "user_id": "test-user"
+}
+
+### Synthesize Speech - Spanish
+POST {{baseUrl}}/api/tts/synthesize
+Content-Type: application/json
+
+{
+  "text": "Hola desde Visual Studio Code",
+  "language": "es",
+  "format": "mp3",
+  "user_id": "test-user"
+}
+
+### List Audio Files
+GET {{baseUrl}}/api/tts/list?user_id=test-user&limit=10
+
+###
+### STT Service Tests (when implemented)
+###
+
+### Transcribe Audio
+# POST {{baseUrl}}/api/stt/transcribe
+# Content-Type: multipart/form-data; boundary=boundary
+
+# --boundary
+# Content-Disposition: form-data; name="file"; filename="audio.mp3"
+# Content-Type: audio/mp3
+
+# < ./test-audio.mp3
+# --boundary
+# Content-Disposition: form-data; name="user_id"
+
+# test-user
+# --boundary--
+
+###
+### Chat Service Tests (when implemented)
+###
+
+### Send Chat Message
+# POST {{baseUrl}}/api/chat/message
+# Content-Type: application/json
+
+# {
+#   "message": "Explain quantum computing in simple terms",
+#   "user_id": "test-user",
+#   "conversation_id": "conv-123"
+# }
+
+###
+### Document Reader Tests (when implemented)
+###
+
+### Upload Document
+# POST {{baseUrl}}/api/documents/upload
+# Content-Type: multipart/form-data; boundary=boundary
+
+# --boundary
+# Content-Disposition: form-data; name="file"; filename="document.pdf"
+# Content-Type: application/pdf
+
+# < ./test-document.pdf
+# --boundary
+# Content-Disposition: form-data; name="user_id"
+
+# test-user
+# --boundary--
+
+###
+### Quiz Service Tests (when implemented)
+###
+
+### Generate Quiz
+# POST {{baseUrl}}/api/quiz/generate
+# Content-Type: application/json
+
+# {
+#   "document_id": "doc-123",
+#   "user_id": "test-user",
+#   "num_questions": 5,
+#   "quiz_type": "multiple_choice",
+#   "difficulty": "medium"
+# }
+
+###
+### Direct Service Access (bypassing API Gateway)
+###
+
+### Direct TTS Health Check
+GET {{ttsUrl}}/health
+
+### Direct TTS Synthesize
+POST {{ttsUrl}}/api/tts/synthesize
+Content-Type: application/json
+
+{
+  "text": "Direct TTS test",
+  "language": "en",
+  "user_id": "test-user"
+}
+
+###
+### Test with Variables
+###
+
+@userId = test-user-123
+@text = This is a test from VS Code REST Client
+
+### Use Variables in Request
+POST {{baseUrl}}/api/tts/synthesize
+Content-Type: application/json
+
+{
+  "text": "{{text}}",
+  "language": "en",
+  "user_id": "{{userId}}"
+}
