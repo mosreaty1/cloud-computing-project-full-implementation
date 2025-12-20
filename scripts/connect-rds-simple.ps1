@@ -1,0 +1,69 @@
+# Simplified RDS Connection Script
+# Creates SSH tunnel to RDS databases
+
+Write-Host "==================================================" -ForegroundColor Cyan
+Write-Host "RDS Connection via SSH Tunnel" -ForegroundColor Cyan
+Write-Host "==================================================" -ForegroundColor Cyan
+Write-Host ""
+
+# Get RDS endpoints
+cd ..\infrastructure\environments\dev
+$endpoints = terraform output -json rds_endpoints | ConvertFrom-Json
+cd ..\..\..
+
+# Select database
+Write-Host "Select database:" -ForegroundColor Yellow
+Write-Host "1. STT" -ForegroundColor White
+Write-Host "2. Chat" -ForegroundColor White
+Write-Host "3. Document" -ForegroundColor White
+Write-Host "4. Quiz" -ForegroundColor White
+Write-Host "5. User" -ForegroundColor White
+$choice = Read-Host "`nChoice (1-5)"
+
+$databases = @{
+    "1" = @{ name = "STT"; endpoint = $endpoints.stt }
+    "2" = @{ name = "Chat"; endpoint = $endpoints.chat }
+    "3" = @{ name = "Document"; endpoint = $endpoints.document }
+    "4" = @{ name = "Quiz"; endpoint = $endpoints.quiz }
+    "5" = @{ name = "User"; endpoint = $endpoints.user }
+}
+
+$db = $databases[$choice]
+$rdsHost = $db.endpoint -replace ":5432", ""
+
+Write-Host ""
+Write-Host "==================================================" -ForegroundColor Green
+Write-Host "Connecting to $($db.name) database" -ForegroundColor Green
+Write-Host "==================================================" -ForegroundColor Green
+Write-Host ""
+Write-Host "Creating tunnel..." -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Once connected, use pgAdmin with these settings:" -ForegroundColor Cyan
+Write-Host "  Host:     localhost" -ForegroundColor White
+Write-Host "  Port:     5432" -ForegroundColor White
+Write-Host "  Username: dbadmin" -ForegroundColor White
+Write-Host "  Password: 44665544Mms" -ForegroundColor White
+Write-Host ""
+Write-Host "Keep this window open! Press Ctrl+C to stop." -ForegroundColor Yellow
+Write-Host ""
+
+# Create parameters JSON file
+$paramsFile = "$env:TEMP\ssm-params.json"
+$json = @"
+{
+    "portNumber": ["5432"],
+    "localPortNumber": ["5432"],
+    "host": ["$rdsHost"]
+}
+"@
+
+$json | Out-File -FilePath $paramsFile -Encoding ASCII
+
+# Start the tunnel
+aws ssm start-session `
+    --target i-04c59abc3770439f8 `
+    --document-name AWS-StartPortForwardingSessionToRemoteHost `
+    --parameters file://$paramsFile
+
+# Cleanup
+Remove-Item $paramsFile -ErrorAction SilentlyContinue
