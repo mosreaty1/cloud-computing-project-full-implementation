@@ -38,7 +38,12 @@ Write-Host ""
 
 # Login to ECR
 Write-Host "Logging in to Amazon ECR..." -ForegroundColor Yellow
-aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+$password = (aws ecr get-login-password --region $AWS_REGION)
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error: Failed to get ECR password" -ForegroundColor Red
+    exit 1
+}
+$password | docker login --username AWS --password-stdin $ECR_REGISTRY
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: Failed to login to ECR" -ForegroundColor Red
