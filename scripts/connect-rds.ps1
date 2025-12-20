@@ -53,7 +53,13 @@ Write-Host "Press Ctrl+C to stop the tunnel" -ForegroundColor Yellow
 Write-Host ""
 
 # Create the tunnel
+$parameters = @{
+    portNumber = @("5432")
+    localPortNumber = @("$localPort")
+    host = @("$rdsHost")
+} | ConvertTo-Json -Compress
+
 aws ssm start-session `
     --target $instanceId `
     --document-name AWS-StartPortForwardingSessionToRemoteHost `
-    --parameters "{`"portNumber`":[`"5432`"],`"localPortNumber`":[`"$localPort`"],`"host`":[`"$rdsHost`"]}"
+    --parameters $parameters
