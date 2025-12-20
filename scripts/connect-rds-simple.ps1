@@ -59,9 +59,9 @@ $json = @"
 
 $json | Out-File -FilePath $paramsFile -Encoding ASCII
 
-# Start the tunnel
+# Start the tunnel (using Kafka broker which is SSM-connected)
 aws ssm start-session `
-    --target i-04c59abc3770439f8 `
+    --target i-0a834978ec5715681 `
     --document-name AWS-StartPortForwardingSessionToRemoteHost `
     --parameters file://$paramsFile
 
