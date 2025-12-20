@@ -109,11 +109,11 @@ module "ec2" {
   target_group_arns         = module.elb.api_gateway_target_group_arn != "" ? [module.elb.api_gateway_target_group_arn] : []
   aws_region                = var.aws_region
 
-  desired_capacity      = 3
-  min_size              = 2
-  max_size              = 6
-  kafka_broker_count    = 3
-  zookeeper_node_count  = 3
+  desired_capacity      = 1  # Free Tier: reduced from 3
+  min_size              = 1  # Free Tier: reduced from 2
+  max_size              = 2  # Free Tier: reduced from 6
+  kafka_broker_count    = 1  # Free Tier: reduced from 3
+  zookeeper_node_count  = 1  # Free Tier: reduced from 3
 }
 
 # RDS Module
