@@ -6,10 +6,13 @@ Write-Host "RDS Connection via SSH Tunnel" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Get RDS endpoints
-cd ..\infrastructure\environments\dev
-$endpoints = terraform output -json rds_endpoints | ConvertFrom-Json
-cd ..\..\..
+# Get RDS endpoints from AWS (more reliable than terraform output)
+Write-Host "Getting RDS endpoints..." -ForegroundColor Yellow
+$sttEndpoint = (aws rds describe-db-instances --db-instance-identifier learning-platform-stt-db-dev --query "DBInstances[0].Endpoint.Address" --output text)
+$chatEndpoint = (aws rds describe-db-instances --db-instance-identifier learning-platform-chat-db-dev --query "DBInstances[0].Endpoint.Address" --output text)
+$documentEndpoint = (aws rds describe-db-instances --db-instance-identifier learning-platform-document-db-dev --query "DBInstances[0].Endpoint.Address" --output text)
+$quizEndpoint = (aws rds describe-db-instances --db-instance-identifier learning-platform-quiz-db-dev --query "DBInstances[0].Endpoint.Address" --output text)
+$userEndpoint = (aws rds describe-db-instances --db-instance-identifier learning-platform-user-db-dev --query "DBInstances[0].Endpoint.Address" --output text)
 
 # Select database
 Write-Host "Select database:" -ForegroundColor Yellow
@@ -21,11 +24,11 @@ Write-Host "5. User" -ForegroundColor White
 $choice = Read-Host "`nChoice (1-5)"
 
 $databases = @{
-    "1" = @{ name = "STT"; endpoint = $endpoints.stt }
-    "2" = @{ name = "Chat"; endpoint = $endpoints.chat }
-    "3" = @{ name = "Document"; endpoint = $endpoints.document }
-    "4" = @{ name = "Quiz"; endpoint = $endpoints.quiz }
-    "5" = @{ name = "User"; endpoint = $endpoints.user }
+    "1" = @{ name = "STT"; endpoint = $sttEndpoint }
+    "2" = @{ name = "Chat"; endpoint = $chatEndpoint }
+    "3" = @{ name = "Document"; endpoint = $documentEndpoint }
+    "4" = @{ name = "Quiz"; endpoint = $quizEndpoint }
+    "5" = @{ name = "User"; endpoint = $userEndpoint }
 }
 
 $db = $databases[$choice]
