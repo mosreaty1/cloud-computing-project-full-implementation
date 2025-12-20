@@ -43,7 +43,7 @@ resource "aws_security_group" "rds" {
 resource "aws_db_instance" "stt" {
   identifier     = "${var.project_name}-stt-db-${var.environment}"
   engine         = "postgres"
-  engine_version = "15.4"
+  engine_version = "15"
   instance_class = var.db_instance_class
 
   allocated_storage     = 20
@@ -80,7 +80,7 @@ resource "aws_db_instance" "stt" {
 resource "aws_db_instance" "chat" {
   identifier     = "${var.project_name}-chat-db-${var.environment}"
   engine         = "postgres"
-  engine_version = "15.4"
+  engine_version = "15"
   instance_class = var.db_instance_class
 
   allocated_storage     = 20
@@ -117,7 +117,7 @@ resource "aws_db_instance" "chat" {
 resource "aws_db_instance" "document" {
   identifier     = "${var.project_name}-document-db-${var.environment}"
   engine         = "postgres"
-  engine_version = "15.4"
+  engine_version = "15"
   instance_class = var.db_instance_class
 
   allocated_storage     = 20
@@ -154,7 +154,7 @@ resource "aws_db_instance" "document" {
 resource "aws_db_instance" "quiz" {
   identifier     = "${var.project_name}-quiz-db-${var.environment}"
   engine         = "postgres"
-  engine_version = "15.4"
+  engine_version = "15"
   instance_class = var.db_instance_class
 
   allocated_storage     = 20
@@ -191,7 +191,7 @@ resource "aws_db_instance" "quiz" {
 resource "aws_db_instance" "user" {
   identifier     = "${var.project_name}-user-db-${var.environment}"
   engine         = "postgres"
-  engine_version = "15.4"
+  engine_version = "15"
   instance_class = var.db_instance_class
 
   allocated_storage     = 20
