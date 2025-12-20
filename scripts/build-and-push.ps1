@@ -20,7 +20,8 @@ if (Test-Path .env) {
 # Check AWS credentials
 try {
     aws sts get-caller-identity | Out-Null
-} catch {
+}
+catch {
     Write-Host "Error: AWS credentials not configured" -ForegroundColor Red
     Write-Host "Run: aws configure" -ForegroundColor Yellow
     exit 1
@@ -50,7 +51,7 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Host "✓ Logged in to ECR" -ForegroundColor Green
+Write-Host "SUCCESS: Logged in to ECR" -ForegroundColor Green
 Write-Host ""
 
 # Services to build
@@ -109,10 +110,12 @@ foreach ($service in $services) {
     docker push ${ECR_REGISTRY}/${repoName}:latest
     docker push ${ECR_REGISTRY}/${repoName}:${imageTag}
 
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "✓ Successfully built and pushed $service" -ForegroundColor Green
-    } else {
-        Write-Host "✗ Failed to push $service" -ForegroundColor Red
+    $pushSuccess = ($LASTEXITCODE -eq 0)
+    if ($pushSuccess) {
+        Write-Host "SUCCESS: Built and pushed $service" -ForegroundColor Green
+    }
+    else {
+        Write-Host "FAILED: Could not push $service" -ForegroundColor Red
     }
 
     Set-Location ..\..
@@ -120,7 +123,7 @@ foreach ($service in $services) {
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "All images built and pushed successfully!" -ForegroundColor Green
+Write-Host "Build and Push Complete!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Images pushed to:" -ForegroundColor White
