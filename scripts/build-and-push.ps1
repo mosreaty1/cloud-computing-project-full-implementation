@@ -39,15 +39,24 @@ Write-Host ""
 
 # Login to ECR
 Write-Host "Logging in to Amazon ECR..." -ForegroundColor Yellow
-$password = (aws ecr get-login-password --region $AWS_REGION)
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Error: Failed to get ECR password" -ForegroundColor Red
-    exit 1
-}
-$password | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+# Use a temporary file for the password to avoid PowerShell piping issues
+$tempPassFile = "$env:TEMP\ecr-password-$PID.txt"
+aws ecr get-login-password --region $AWS_REGION | Out-File -FilePath $tempPassFile -Encoding ASCII -NoNewline
 
 if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error: Failed to get ECR password" -ForegroundColor Red
+    if (Test-Path $tempPassFile) { Remove-Item $tempPassFile -Force }
+    exit 1
+}
+
+Get-Content $tempPassFile | docker login --username AWS --password-stdin $ECR_REGISTRY
+$loginResult = $LASTEXITCODE
+Remove-Item $tempPassFile -Force -ErrorAction SilentlyContinue
+
+if ($loginResult -ne 0) {
     Write-Host "Error: Failed to login to ECR" -ForegroundColor Red
+    Write-Host "Make sure Docker Desktop is running" -ForegroundColor Yellow
     exit 1
 }
 
