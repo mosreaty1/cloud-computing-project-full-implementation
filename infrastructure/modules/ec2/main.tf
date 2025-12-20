@@ -234,7 +234,7 @@ resource "aws_instance" "kafka" {
   }))
 
   root_block_device {
-    volume_size           = 20
+    volume_size           = 30  # Minimum required by Amazon Linux 2023 AMI
     volume_type           = "gp3"
     encrypted             = true
     delete_on_termination = true
@@ -281,7 +281,7 @@ resource "aws_instance" "zookeeper" {
   }))
 
   root_block_device {
-    volume_size           = 20
+    volume_size           = 30  # Minimum required by Amazon Linux 2023 AMI
     volume_type           = "gp3"
     encrypted             = true
     delete_on_termination = true
@@ -289,7 +289,7 @@ resource "aws_instance" "zookeeper" {
 
   ebs_block_device {
     device_name           = "/dev/sdf"
-    volume_size           = 20
+    volume_size           = 30  # Data volume for Zookeeper
     volume_type           = "gp3"
     encrypted             = true
     delete_on_termination = false
